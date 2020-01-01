@@ -57,10 +57,6 @@ const schema = {
   fakeDns: {
     type: 'boolean',
     default: false
-  },
-  systemDns: {
-    type: 'string',
-    default: '223.5.5.5,1.1.1.1'
   }
 }
 const store = new Store({name: 'preference', schema: schema})
@@ -403,7 +399,7 @@ async function startCore(callback) {
         '-tunAddr', tunAddr,
         '-tunMask', tunMask,
         '-tunGw', tunGw,
-        '-tunDns', store.get('systemDns'),
+        '-tunDns', '223.5.5.5,1.1.1.1',
         '-rpcPort', coreRpcPort.toString(),
         '-sendThrough', sendThrough,
         '-proxyType', 'v2ray',
@@ -864,7 +860,7 @@ function checkForUpdates(silent) {
       latestVer = semver.clean(obj['tag_name'])
       ver = app.getVersion()
       if (ver != latestVer) {
-        dialog.showMessageBox({ message: util.format('A new version (%s) is available.\n\n\nRelease Notes:\n\n%s\n\n\nDownload:\n\n%s', latestVer, obj['body'], obj['html_url']) })
+        dialog.showMessageBox({ message: util.format('A new version (%s) is available.\n\nRelease Notes:\n%s\n\nDownload: %s', latestVer, obj['body'], obj['html_url']) })
       } else {
         if (!silent) {
           dialog.showMessageBox({ message: 'You are up-to-date!' })
@@ -899,15 +895,15 @@ function buildTrayMenu() {
   var mainMenus = []
   mainMenus = [
     ...mainMenus,
-    { label: 'Connect', type: 'normal', enabled: !isConnected(), click: function() {
+    { label: '连接', type: 'normal', enabled: !isConnected(), click: function() {
         up()
       }
     },
-    { label: 'Disconnect', type: 'normal', enabled: isConnected(), click: function() {
+    { label: '断开', type: 'normal', enabled: isConnected(), click: function() {
         down()
       }
     },
-    { label: 'Reconnect', type: 'normal', enabled: isConnected(), click: function() {
+    { label: '重启', type: 'normal', enabled: isConnected(), click: function() {
         reconnect()
       }
     }
@@ -935,7 +931,7 @@ function buildTrayMenu() {
     mainMenus.push({ type: 'separator' })
   }
   mainMenus.push({
-    label: 'Edit Selected',
+    label: '编辑所选配置',
     type: 'normal',
     click: function() {
       const config = store.get('selectedConfig')
@@ -947,10 +943,10 @@ function buildTrayMenu() {
       }
     }
   }, {
-    label: 'Create Config',
+    label: '创建配置',
     type: 'submenu',
     submenu: Menu.buildFromTemplate([{
-      label: 'Create Conf Template',
+      label: '创建Conf模板',
       type: 'normal',
       click: () => {
         f = fs.openSync(path.join(configFolder, getFormattedTime() + '.conf'), 'w+')
@@ -959,7 +955,7 @@ function buildTrayMenu() {
         reloadTray()
       }
     }, {
-      label: 'Create JSON Template',
+      label: '创建JSON模板',
       type: 'normal',
       click: () => {
         f = fs.openSync(path.join(configFolder, getFormattedTime() + '.json'), 'w+')
@@ -970,7 +966,7 @@ function buildTrayMenu() {
     }, {
       type: 'separator'
     }, {
-      label: 'Create From URL',
+      label: '从URL创建',
       type: 'normal',
       click: () => {
         prompt({
@@ -1024,12 +1020,12 @@ function buildTrayMenu() {
     }])
   })
   mainMenus.push({
-    label: 'Config Folder',
+    label: '配置文件夹',
     type: 'normal',
     click: () => { shell.openItem(configFolder) }
   })
   mainMenus.push({
-    label: 'Reload Configs',
+    label: '重新加载配置',
     type: 'normal',
     click: () => {
       reloadTray()
@@ -1039,7 +1035,7 @@ function buildTrayMenu() {
   mainMenus.push({ type: 'separator' })
 
   var otherMenus = [{
-    label: 'Preferences',
+    label: '偏好',
     type: 'submenu',
     submenu: Menu.buildFromTemplate([
       {
@@ -1053,13 +1049,13 @@ function buildTrayMenu() {
         visible: process.platform != 'win32'
       },
       {
-        label: 'Auto Connect',
+        label: '自动连接',
         type: 'checkbox',
         click: (item) => { store.set('autoConnect', item.checked) },
         checked: store.get('autoConnect')
       },
       {
-        label: 'Check Updates',
+        label: '检查更新',
         type: 'checkbox',
         click: (item) => { store.set('checkUpdates', item.checked) },
         checked: store.get('checkUpdates')
@@ -1102,30 +1098,9 @@ function buildTrayMenu() {
       },
       { type: 'separator' },
       {
-        label: 'Advanced',
+        label: '高级',
         type: 'submenu',
         submenu: Menu.buildFromTemplate([
-          {
-            label: 'Set System DNS',
-            type: 'normal',
-            click: (item) => {
-              prompt({
-                title: 'Set System DNS Resolvers',
-                label: 'Comma-separated list:',
-                value: store.get('systemDns'),
-                inputAttrs: {
-                    type: 'text'
-                }
-              })
-              .then((r) => {
-                if (r) {
-                  // remove all whitespaces before store
-                  store.set('systemDns', r.replace(/\s/g,''))
-                }
-              })
-            },
-            visible: process.platform == 'win32'
-          },
           {
             label: 'Domain Sniffing',
             type: 'checkbox',
@@ -1153,7 +1128,7 @@ function buildTrayMenu() {
   },
   { type: 'separator' },
   {
-    label: 'Running Config',
+    label: '打开当前运行配置',
     type: 'normal',
     click: () => { shell.openItem(runningConfig) }
   },
@@ -1171,12 +1146,8 @@ function buildTrayMenu() {
     click: () => { shell.openItem(logPath) }
   },
   { type: 'separator' },
-  { label: 'Check For Updates', type: 'normal', click: function() {
+  { label: '检查更新', type: 'normal', click: function() {
       checkForUpdates(false)
-    }
-  },
-  { label: 'Help', type: 'normal', click: function() {
-      shell.openExternal('https://github.com/mellow-io/mellow')
     }
   },
   { label: 'About', type: 'normal', click: function() {
@@ -1184,7 +1155,7 @@ function buildTrayMenu() {
     }
   },
   { type: 'separator' },
-  { label: 'Quit', type: 'normal', click: function() {
+  { label: '退出', type: 'normal', click: function() {
       down()
       app.quit()
     }
