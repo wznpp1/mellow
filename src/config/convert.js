@@ -108,6 +108,8 @@ const ruleName = (type) => {
     return 'app'
   } else if (type.includes('PORT')) {
     return 'port'
+  } else if (type.includes('SOURCE')) {
+    return 'source'
   } else if (type.includes('NETWORK')) {
     return 'network'
   } else {
@@ -208,6 +210,9 @@ const constructRoutingRules = (rule, routing, subconfig, overrideTarget=undefine
         filters.push(util.format('full:%s', filter))
         break
       case 'IP-CIDR':
+        filters.push(filter)
+        break
+      case 'SOURCE':
         filters.push(filter)
         break
       case 'GEOIP':
