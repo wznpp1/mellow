@@ -1,0 +1,119 @@
+{
+  "name": "Mellow",
+  "version": "0.1.22",
+  "main": "src/main.js",
+  "scripts": {
+    "test": "jest",
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "distmac": "CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder -m",
+    "distwin": "electron-builder -w",
+    "distlinux": "electron-builder -l",
+    "dlcore": "node scripts/dl_core.js",
+    "dlgeo": "node scripts/dl_geo.js"
+  },
+  "devDependencies": {
+    "axios": "^0.19.2",
+    "electron": "^8.4.0",
+    "electron-builder": "^22.7.0",
+    "jest": "^26.1.0",
+    "targz": "^1.0.1"
+  },
+  "dependencies": {
+    "auto-launch": "^5.0.5",
+    "base64url": "^3.0.1",
+    "default-gateway": "^5.0.4",
+    "electron-log": "^3.0.7",
+    "electron-prompt": "^1.3.1",
+    "electron-store": "^4.0.0",
+    "i18next": "^19.6.2",
+    "i18next-node-fs-backend": "^2.1.3",
+    "module-alias": "github:eycorsican/module-alias",
+    "netmask": "^1.0.6",
+    "semver": "^6.3.0",
+    "sudo-prompt": "github:eycorsican/sudo-prompt"
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "^@mellow(.*)$": "<rootDir>/src/$1"
+    }
+  },
+  "moduleAliases": {
+    "@mellow": "src"
+  },
+  "build": {
+    "appId": "org.mellow.mellow",
+    "mac": {
+      "icon": "src/assets/icon-mac.icns",
+      "extraResources": [
+        {
+          "from": "src/helper/darwin",
+          "to": "src/helper",
+          "filter": [
+            "core",
+            "install_helper",
+            "md5sum",
+            "route",
+            "configure_proxy",
+            "setdnsservers"
+          ]
+        },
+        "src/helper/geosite.dat",
+        "src/helper/geo.mmdb",
+        "src/locales/en/translation.json",
+        "src/locales/zh/translation.json"
+      ]
+    },
+    "win": {
+      "icon": "src/assets/icon.png",
+      "requestedExecutionLevel": "requireAdministrator",
+      "extraResources": [
+        {
+          "from": "src/helper/win32",
+          "to": "src/helper",
+          "filter": [
+            "core.exe",
+            "ensure_tap_device.bat",
+            "config_route.bat",
+            "recover_route.bat",
+            "tap-windows6",
+            "configure_proxy.bat"
+          ]
+        },
+        {
+          "from": "src/helper/win32/tap-windows6",
+          "to": "src/helper/tap-windows6",
+          "filter": [
+            "*"
+          ]
+        },
+        "src/helper/geosite.dat",
+        "src/helper/geo.mmdb",
+        "src/locales/en/translation.json",
+        "src/locales/zh/translation.json"
+      ]
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "src/assets/icon.png",
+      "extraResources": [
+        {
+          "from": "src/helper/linux",
+          "to": "src/helper",
+          "filter": [
+            "config_route",
+            "recover_route",
+            "core",
+            "install_helper",
+            "md5sum",
+            "ip"
+          ]
+        },
+        "src/helper/geosite.dat",
+        "src/helper/geo.mmdb",
+        "src/locales/en/translation.json",
+        "src/locales/zh/translation.json"
+      ]
+    }
+  }
+}
